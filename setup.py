@@ -1,6 +1,7 @@
 # Available at setup time due to pyproject.toml
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup
+import pybind11
 
 __version__ = "0.0.1"
 
@@ -14,15 +15,24 @@ __version__ = "0.0.1"
 #   reproducible builds (https://github.com/pybind/python_example/pull/53)
 
 ext_modules = [
-    Pybind11Extension("python_example",
-        ["src/main.cpp"],
+    Pybind11Extension(
+        "gpmf_parser",
+        ['src/gpmf_bindings.cpp',
+         'gpmf-parser/GPMF_parser.c',
+         'gpmf-parser/GPMF_utils.c',
+         'gpmf-parser/demo/GPMF_mp4reader.c'],
+        include_dirs=[
+            pybind11.get_include(),
+            'gpmf-parser',
+            'gpmf-parser/demo/',
+        ],
         # Example: passing in the version to the compiled code
         define_macros = [('VERSION_INFO', __version__)],
         ),
 ]
 
 setup(
-    name="python_example",
+    name="gpmf_parser",
     version=__version__,
     author="Steffen Urban",
     author_email="urbste@gmail.com",
