@@ -45,4 +45,5 @@ extractor.close_source()
 
 ## Acknowledgements
 This is my first project using ChatGPT4 to create Python bindings for a C library. I learned a lot in the process. I do have some experience with pybind11, however, this C library was challenging due to the use of pointers (especially the GPMF_stream struct). ChatGPT4 was able to solve all the hurdles in the process. I had to iterate some prompts and also prompt with specific errors, but in the end we figured it out ;)
+It also created the pip-publish.yml file to automatically publish the wheel on PyPI.
 It took me about 6-7 hours to write the library, which I would say is probably half of the time it would have taken me without ChatGPT.
