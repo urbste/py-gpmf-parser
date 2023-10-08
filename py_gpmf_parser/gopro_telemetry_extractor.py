@@ -49,7 +49,6 @@ class GoProTelemetryExtractor:
             ret, stream = pgfp.GPMF_Init(payload, payloadsize)
             if ret != pgfp.GPMF_ERROR.GPMF_OK:
                 continue
-            
 
             while pgfp.GPMF_ERROR.GPMF_OK == pgfp.GPMF_FindNext(stream, pgfp.Str2FourCC("STRM"), pgfp.GPMF_RECURSE_LEVELS_AND_TOLERANT):
                 if pgfp.GPMF_ERROR.GPMF_OK != pgfp.GPMF_FindNext(stream, pgfp.Str2FourCC(sensor_type), pgfp.GPMF_RECURSE_LEVELS_AND_TOLERANT):
@@ -64,12 +63,21 @@ class GoProTelemetryExtractor:
                     ret, data = pgfp.GPMF_ScaledData(stream, buffersize, 0, samples, pgfp.GPMF_SampleType.DOUBLE)
                     data = data[:samples*elements]
                     if pgfp.GPMF_ERROR.GPMF_OK == ret:
-                        print(data)
                         results.extend(np.reshape(data, self.reshape_dict[sensor_type]))
                         timestamps.extend([t_in + i*delta_t/samples for i in range(samples)])
             pgfp.GPMF_ResetState(stream)
 
-        return results, np.array(timestamps) + start
+        return np.array(results), np.array(timestamps) + start
     
+
+    def extract_data_to_json(self, json_file, sensor_types=["ACCL", "GYRO", "GPS5", "GRAV"]):
+        import json
+        out_dict = {}
+        for sensor in sensor_types:
+            data, timestamps = self.extract_data(sensor)
+            out_dict.update({sensor: {"data": data.tolist(), "timestamps_ms": timestamps.tolist()}})
+        with open(json_file, "w") as f:
+            json.dump(out_dict, f)
+
     def close(self):
         self.close_source()
