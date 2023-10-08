@@ -6,13 +6,6 @@ class GoProTelemetryExtractor:
         self.mp4_filepath = mp4_filepath
         self.handle = None
 
-        self.reshape_dict = {
-            "ACCL": (-1, 3),
-            "GYRO": (-1, 3),
-            "GPS5": (-1, 5),
-            "GRAV": (-1, 3),
-        }
-
     def open_source(self):
         if self.handle is None:
             self.handle = pgfp.OpenMP4Source(self.mp4_filepath, pgfp.MOV_GPMF_TRAK_TYPE, pgfp.MOV_GPMF_TRAK_SUBTYPE, 0)
@@ -63,14 +56,14 @@ class GoProTelemetryExtractor:
                     ret, data = pgfp.GPMF_ScaledData(stream, buffersize, 0, samples, pgfp.GPMF_SampleType.DOUBLE)
                     data = data[:samples*elements]
                     if pgfp.GPMF_ERROR.GPMF_OK == ret:
-                        results.extend(np.reshape(data, self.reshape_dict[sensor_type]))
+                        results.extend(np.reshape(data, (-1, elements)))
                         timestamps.extend([t_in + i*delta_t/samples for i in range(samples)])
             pgfp.GPMF_ResetState(stream)
 
         return np.array(results), np.array(timestamps) + start
     
 
-    def extract_data_to_json(self, json_file, sensor_types=["ACCL", "GYRO", "GPS5", "GRAV"]):
+    def extract_data_to_json(self, json_file, sensor_types=["ACCL", "GYRO"]):
         import json
         out_dict = {}
         for sensor in sensor_types:

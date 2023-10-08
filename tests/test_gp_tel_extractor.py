@@ -13,7 +13,10 @@ if __name__ == "__main__":
         gyro, gyro_t = extractor.extract_data("GYRO")
         gps, gps_t = extractor.extract_data("GPS5")
         grav, grav_t = extractor.extract_data("GRAV")
-
-        extractor.extract_data_to_json(os.path.basename(filepath)+".json", ["ACCL", "GYRO", "GPS5", "GRAV"])
+        magn, magn_t = extractor.extract_data("MAGN")
+        cori, cori_t = extractor.extract_data("CORI")
+        iori, iori_t = extractor.extract_data("IORI")
+        extractor.extract_data_to_json(os.path.basename(filepath)+".json", 
+                                       ["ACCL", "GYRO", "GPS5", "GRAV", "MAGN", "CORI", "IORI"])
 
         extractor.close_source()
