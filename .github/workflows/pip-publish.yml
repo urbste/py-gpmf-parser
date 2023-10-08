@@ -58,7 +58,7 @@ jobs:
       run: pip install --no-build-isolation .
 
   publish:
-    needs: [build, build-mingw64]
+    needs: [build] # , build-mingw64
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -70,11 +70,17 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install setuptools wheel twine pybind11
+        pip install setuptools wheel twine pybind11 auditwheel
+
     - name: Build distribution
       run: python setup.py sdist bdist_wheel
+    
+    - name: Repair wheel for manylinux compatibility
+      run: |
+        auditwheel repair dist/*.whl -w dist/
+    
     - name: Publish to PyPI
-      run: twine upload dist/*
+      run: twine upload dist/*manylinux*.whl
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
