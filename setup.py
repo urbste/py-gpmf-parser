@@ -26,6 +26,7 @@ ext_modules = [
             'gpmf-parser',
             'gpmf-parser/demo/',
         ],
+        extra_compile_args=["-std=c++17"],  # only C++ flags
         # Example: passing in the version to the compiled code
         define_macros = [('VERSION_INFO', __version__)],
         ),
