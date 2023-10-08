@@ -96,5 +96,4 @@ if __name__ == "__main__":
     import glob
 
     for filepath in glob.iglob('../gpmf-parser/samples/*.mp4'):
-        print(filepath)
         extract_payloads_from_mp4(filepath)

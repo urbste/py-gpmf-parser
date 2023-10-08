@@ -75,7 +75,7 @@ class GoProTelemetryExtractor:
         out_dict = {}
         for sensor in sensor_types:
             data, timestamps = self.extract_data(sensor)
-            out_dict.update({sensor: {"data": data.tolist(), "timestamps_ms": timestamps.tolist()}})
+            out_dict.update({sensor: {"data": data.tolist(), "timestamps_s": timestamps.tolist()}})
         with open(json_file, "w") as f:
             json.dump(out_dict, f)
 
