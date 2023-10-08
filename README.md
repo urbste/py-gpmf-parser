@@ -12,6 +12,7 @@ It provides access to most of the low-level functions (have a look at the **src/
 
 To install the package, navigate to the root directory of the repository and run:
 ```bash
+git clone --recursive https://github.com/urbste/py-gpmf-parser/
 pip install .
 ```
 
