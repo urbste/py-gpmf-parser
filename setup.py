@@ -1,6 +1,6 @@
 # Available at setup time due to pyproject.toml
 from pybind11.setup_helpers import Pybind11Extension, build_ext
-from setuptools import setup
+from setuptools import setup, find_packages
 import pybind11
 
 __version__ = "0.0.1"
@@ -32,7 +32,7 @@ ext_modules = [
 ]
 
 setup(
-    name="gpmf_parser",
+    name="py_gpmf_parser",
     version=__version__,
     author="Steffen Urban",
     author_email="urbste@gmail.com",
@@ -40,6 +40,8 @@ setup(
     description="Python bindings for the gpmf-parser library using pybind",
     long_description="",
     ext_modules=ext_modules,
+    packages=find_packages(),
+    package_data={"gopro_telemetry_extractor": ["*"]},  # Include all files in py_gpmf_parser
     extras_require={"test": "pytest"},
     # Currently, build_ext only provides an optional "highest supported C++
     # level" feature, but in the future it may provide more features.

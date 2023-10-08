@@ -3,7 +3,9 @@
 #include <pybind11/numpy.h>
 #include "GPMF_parser.h"
 #include "GPMF_mp4reader.h"
+#include "GPMF_utils.h"
 #include <iostream>
+
 namespace py = pybind11;
 
 class GPMF_stream_wrapper {
@@ -53,16 +55,12 @@ std::vector<uint32_t> GetPayloadWrapper(
     return std::vector<uint32_t>();
 }
 
-std::tuple<double, double> GetPayloadTimeWrapper(size_t handle, uint32_t index) {
+std::tuple<uint32_t, double, double> GetPayloadTimeWrapper(size_t handle, uint32_t index) {
     double in_time = 0.0;
     double out_time = 0.0;
     
     uint32_t result = GetPayloadTime(handle, index, &in_time, &out_time);
-    if (result == MP4_ERROR_OK) {
-        return std::make_tuple(in_time, out_time);
-    }
-
-    throw std::runtime_error("Error getting payload time");
+    return std::make_tuple(result, in_time, out_time);
 }
 
 std::tuple<GPMF_ERR, GPMF_stream_wrapper> GPMF_InitWrapper(py::array_t<uint32_t> buffer_array, uint32_t datasize)
@@ -124,6 +122,27 @@ std::pair<GPMF_ERR, std::vector<double>> GPMF_ScaledDataWrapper(GPMF_stream_wrap
 }
 
 
+std::tuple<double, double, double> GetGPMFSampleRateWrapper(
+    size_t mp4handle, uint32_t fourcc, uint32_t key) {
+    double start_time = 0.0;
+    double end_time = 0.0;
+
+    mp4callbacks cbobject;
+    cbobject.mp4handle = mp4handle;
+    cbobject.cbGetNumberPayloads = GetNumberPayloads;
+    cbobject.cbGetPayload = GetPayload;
+    cbobject.cbGetPayloadSize = GetPayloadSize;
+    cbobject.cbGetPayloadResource = GetPayloadResource;
+    cbobject.cbGetPayloadTime = GetPayloadTime;
+    cbobject.cbFreePayloadResource = FreePayloadResource;
+    cbobject.cbGetEditListOffsetRationalTime = GetEditListOffsetRationalTime;
+
+    double rate = GetGPMFSampleRate(cbobject, fourcc, key, 
+        GPMF_SAMPLE_RATE_PRECISE, &start_time, &end_time);
+    return {rate, start_time, end_time};
+}
+
+
 
 PYBIND11_MODULE(gpmf_parser, m) {
     m.doc() = "pybind11 GPMF parser bindings";
@@ -167,11 +186,6 @@ PYBIND11_MODULE(gpmf_parser, m) {
         "Get the in and out times for a given handle and index. Returns a tuple (in_time, out_time).");
 
     m.def("GPMF_Init", &GPMF_InitWrapper, "Initialize GPMF stream");
-
-    // // Wrapping GPMF_CopyState function
-    // m.def("GPMF_CopyState", [](GPMF_stream_wrapper& src, GPMF_stream_wrapper& dst) {
-    //     return GPMF_CopyState(src.get(), dst.get());
-    // }, "Copy the state from one stream wrapper to another");
 
     m.def("GPMF_Next", [](GPMF_stream_wrapper& stream_wrapper, GPMF_LEVELS recurse) {
         return GPMF_Next(stream_wrapper.get(), recurse);
@@ -240,6 +254,7 @@ PYBIND11_MODULE(gpmf_parser, m) {
 
     m.def("GPMF_ScaledData", &GPMF_ScaledDataWrapper, "Wrapped GPMF_ScaledData function.");
 
+    m.def("GetGPMFSampleRate", &GetGPMFSampleRateWrapper, "Wrapped GetGPMFSampleRate function.");
 
     m.attr("MOV_GPMF_TRAK_TYPE") = MOV_GPMF_TRAK_TYPE;
     m.attr("MOV_GPMF_TRAK_SUBTYPE") = MOV_GPMF_TRAK_SUBTYPE;
