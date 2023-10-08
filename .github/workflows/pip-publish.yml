@@ -16,9 +16,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-latest] # windows-latest, macos-latest, 
+        platform: [macos-latest, ubuntu-latest] # windows-latest, 
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
     runs-on: ${{ matrix.platform }}
+
+    env:  # Set compilers here
+      CC: ${{ matrix.platform == 'macos-latest' && 'clang' || 'gcc' }}
+      CXX: ${{ matrix.platform == 'macos-latest' && 'clang++' || 'g++' }}
+
     steps:
     - uses: actions/checkout@v4
       with:
