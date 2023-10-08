@@ -77,7 +77,7 @@ jobs:
     
     - name: Repair wheel for manylinux compatibility
       run: |
-        auditwheel repair dist/*.whl -w dist/
+        auditwheel repair --plat manylinux_2_17_x86_64 dist/*.whl -w dist/
     
     - name: Publish to PyPI
       run: twine upload dist/*manylinux*.whl
