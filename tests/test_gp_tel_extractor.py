@@ -18,7 +18,11 @@ if __name__ == "__main__":
         magn, magn_t = extractor.extract_data("MAGN")
         cori, cori_t = extractor.extract_data("CORI")
         iori, iori_t = extractor.extract_data("IORI")
+        gpsp, gpsp_t = extractor.extract_data("GPSP")
+        gpsf, gpsf_t = extractor.extract_data("GPSF")
+        gpsu, gpsu_t = extractor.extract_data("GPSU")
+
         extractor.extract_data_to_json(os.path.basename(filepath)+".json", 
-                                       ["ACCL", "GYRO", "GPS5", "GRAV", "MAGN", "CORI", "IORI"])
+                                       ["ACCL", "GYRO", "GPS5", "GPSP", "GPSF", "GPSU", "GRAV", "MAGN", "CORI", "IORI"])
 
         extractor.close_source()
