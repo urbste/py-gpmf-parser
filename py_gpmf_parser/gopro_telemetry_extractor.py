@@ -19,6 +19,17 @@ class GoProTelemetryExtractor:
         else:
             raise ValueError("No source to close!")
 
+    def get_image_timestamps_s(self):
+        if self.handle is None:
+            raise ValueError("Source is not opened!")
+
+        num_frames, numer, denom = pgfp.GetVideoFrameRateAndCount(self.handle)
+        frametime = denom / numer
+        timestamps = []
+        for i in range(num_frames):
+            timestamps.append(i*frametime)
+        return np.array(timestamps)
+
     def extract_data(self, sensor_type):
         if self.handle is None:
             raise ValueError("Source is not opened!")
@@ -65,7 +76,7 @@ class GoProTelemetryExtractor:
 
     def extract_data_to_json(self, json_file, sensor_types=["ACCL", "GYRO"]):
         import json
-        out_dict = {}
+        out_dict = {"img_timestamps_s": self.get_image_timestamps_s().tolist()}
         for sensor in sensor_types:
             data, timestamps = self.extract_data(sensor)
             out_dict.update({sensor: {"data": data.tolist(), "timestamps_s": timestamps.tolist()}})

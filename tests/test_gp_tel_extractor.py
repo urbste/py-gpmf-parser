@@ -9,6 +9,8 @@ if __name__ == "__main__":
         # print the filename:
         extractor = GoProTelemetryExtractor(filepath)
         extractor.open_source()
+        shut, shut_t = extractor.extract_data("SHUT")
+        timestamps = extractor.get_image_timestamps_s()
         accl, accl_t = extractor.extract_data("ACCL")
         gyro, gyro_t = extractor.extract_data("GYRO")
         gps, gps_t = extractor.extract_data("GPS5")
