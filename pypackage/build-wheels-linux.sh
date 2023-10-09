@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e -x
 
-PYTHON_VERSIONS=($PYTHON_VERSIONS)
+# Convert the space-separated string into an array
+IFS=' ' read -ra PYTHON_VERSIONS <<< "$PYTHON_VERSIONS"
 
 # Compile wheels for multiple Python versions
 for version in "${PYTHON_VERSIONS[@]}"; do
