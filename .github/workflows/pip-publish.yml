@@ -45,9 +45,11 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
+    - name: Set script permissions
+      run: chmod +x pypackage/build-wheels-linux.sh
     - name: Build and Repair Wheel in manylinux container
       run: |
-        docker run -e PLAT=manylinux2014_x86_64 -e PYTHON_VERSIONS="3.7 3.8 3.9 3.10 3.11" -v $PWD:/io quay.io/pypa/manylinux2014_x86_64 /io/pypackage/build-wheels-linux.sh
+        docker run -e PLAT=manylinux_2_28_x86_64 -e PYTHON_VERSIONS="3.7 3.8 3.9 3.10 3.11" -v $PWD:/io quay.io/pypa/manylinux_2_28_x86_64 /io/pypackage/build-wheels-linux.sh
     
     - name: Publish to PyPI
       run: |
