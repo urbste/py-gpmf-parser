@@ -21,7 +21,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: recursive
-        
+
     - name: Set script permissions
       run: chmod +x pypackage/build-wheel-linux.sh
 
@@ -30,8 +30,10 @@ jobs:
         sudo docker run --rm -e PYTHON_VERSION=${{ matrix.pyversion }} -v `pwd`:/home quay.io/pypa/manylinux_2_28_x86_64 /home/pypackage/build-wheel-linux.sh
         # cleanup for custom runner
         sudo chown -R $(whoami):$(whoami) .
-    - name: Publish distribution to PyPI
-      uses: pypa/gh-action-pypi-publish@master
-      with:
-        password: ${{ secrets.PYPI_API_TOKEN }}
-        packages_dir: wheelhouse/
+    - name: Publish to PyPI
+      run: |
+        pip install twine
+        twine upload wheelhouse/*manylinux*.whl
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
