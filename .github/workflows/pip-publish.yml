@@ -11,58 +11,30 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# jobs:
-#   build:
-#     strategy:
-#       fail-fast: false
-#       matrix:
-#         platform: [ubuntu-latest] # windows-latest, macos-latest,
-#         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
-#     runs-on: ${{ matrix.platform }}
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+    runs-on: ${{ matrix.platform }}
 
-#     env:  # Set compilers here
-#       CC: ${{ matrix.platform == 'macos-latest' && 'clang' || 'gcc' }}
-#       CXX: ${{ matrix.platform == 'macos-latest' && 'clang++' || 'g++' }}
-
-#     steps:
-#     - uses: actions/checkout@v4
-#       with:
-#         submodules: recursive
-#     - uses: actions/setup-python@v4
-#       with:
-#         python-version: ${{ matrix.python-version }}
-#     - name: Add requirements
-#       run: python -m pip install --upgrade wheel setuptools
-#     - name: Build and install
-#       run: pip install --verbose .
-
-  # build-mingw64:
-  #   runs-on: windows-latest
-  #   defaults:
-  #     run:
-  #       shell: msys2 {0}
-  #   steps:
-  #   - uses: msys2/setup-msys2@v2
-  #     with:
-  #       update: true
-  #       install: >-
-  #         mingw-w64-x86_64-gcc
-  #         mingw-w64-x86_64-python-pip
-  #         mingw-w64-x86_64-python-wheel
-  #   - uses: actions/checkout@v4
-  #     with:
-  #       submodules: recursive
-  #   - name: Install pybind11
-  #     run: pip install pybind11
-  #   - name: Build and install
-  #     run: pip install --no-build-isolation .
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Add requirements
+      run: python -m pip install --upgrade wheel setuptools
+    - name: Build and install
+      run: pip install --verbose .
 
   publish:
-    needs: [build] # , build-mingw64
+    needs: build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [cp37-cp37, cp38-cp38, cp39-cp39, cp310-cp310, cp311-cp311]
 
     steps:
     - name: Check out code
@@ -75,7 +47,7 @@ concurrency:
 
     - name: Build and Repair Wheel in manylinux container
       run: |
-        docker run -e PLAT=manylinux2014_x86_64 -e PYTHON_VERSIONS="${{ join(matrix.python-version, ' ') }}" -v $PWD:/io quay.io/pypa/manylinux2014_x86_64 /io/build-wheels-linux.sh
+        docker run -e PLAT=manylinux2014_x86_64 -e PYTHON_VERSIONS="3.7 3.8 3.9 3.10 3.11" -v $PWD:/io quay.io/pypa/manylinux2014_x86_64 /io/build-wheels-linux.sh
     
     - name: Publish to PyPI
       run: |
