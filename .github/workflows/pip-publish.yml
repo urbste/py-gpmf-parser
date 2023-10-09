@@ -1,60 +1,33 @@
-name: Pip
-
 on:
-  workflow_dispatch:
-  pull_request:
   push:
     branches:
       - master
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+  release:
+    types: [published, edited]
+  workflow_dispatch:
+  create:
 
 jobs:
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [ubuntu-latest]
-        python-version: ["cp38-cp38", "cp39-cp39", "cp310-cp310", "cp311-cp311"] 
-    runs-on: ${{ matrix.platform }}
-
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: recursive
-    - uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Add requirements
-      run: python -m pip install --upgrade wheel setuptools
-    - name: Build and install
-      run: pip install --verbose .
-
-  publish:
-    needs: build
+  linux-build:
+    name: Wrapper Linux Build
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        pyversion: ["cp38-cp38", "cp39-cp39", "cp310-cp310", "cp311-cp311"] 
     steps:
-    - name: Check out code
+    - name: Checkout
       uses: actions/checkout@v2
       with:
         submodules: recursive
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-
-    - name: Set script permissions
-      run: chmod +x pypackage/build-wheels-linux.sh
-    - name: Build and Repair Wheel in manylinux container
+    - name: Build the Linux wheels
       run: |
-        docker run -e PLAT=manylinux_2_28_x86_64 -e PYTHON_VERSIONS="cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311" -v $PWD:/io quay.io/pypa/manylinux_2_28_x86_64 /io/pypackage/build-wheels-linux.sh
-      
-    - name: Publish to PyPI
-      run: |
-        pip install twine
-        twine upload wheelhouse/*manylinux*.whl
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        sudo docker run --rm -e PYTHON_VERSION=${{ matrix.pyversion }} -v `pwd`:/home quay.io/pypa/manylinux_2_28_x86_64 /home/pypackage/build-wheel-linux.sh
+        # cleanup for custom runner
+        sudo chown -R $(whoami):$(whoami) .
+    - name: Publish distribution to Test PyPI
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        packages_dir: wheelhouse/
