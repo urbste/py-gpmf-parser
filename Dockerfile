@@ -1,5 +1,9 @@
 FROM quay.io/pypa/manylinux2014_x86_64
 
-COPY . ./io
+COPY . /io
 
-RUN chmod +x /io/pypackage/build-wheels-linux.sh && bash /io/pypackage/build-wheels-linux.sh
+ENV PYTHON_VERSION=cp312-cp312
+
+WORKDIR /io
+
+RUN chmod +x /io/pypackage/build-wheel-linux.sh && /io/pypackage/build-wheel-linux.sh
