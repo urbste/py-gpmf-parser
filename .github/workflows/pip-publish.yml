@@ -27,7 +27,7 @@ jobs:
 
     - name: Build the Linux wheels
       run: |
-        sudo docker run --rm -e PYTHON_VERSION=${{ matrix.pyversion }} -v `pwd`:/home quay.io/pypa/manylinux_2_28_x86_64 /home/pypackage/build-wheel-linux.sh
+        sudo docker run --rm -e PYTHON_VERSION=${{ matrix.pyversion }} -v `pwd`:/io quay.io/pypa/manylinux_2_28_x86_64 /io/pypackage/build-wheel-linux.sh
         # cleanup for custom runner
         sudo chown -R $(whoami):$(whoami) .
     - name: Publish to PyPI
