@@ -38,10 +38,8 @@ extractor.close_source()
 
 ## To-Do List
 
-- [ ] publish package
+- [x] publish package
 - [ ] document 
-- [ ] check timestamps for GRAV and ACCL, not sure yet
-
 
 ## Acknowledgements
 This is my first project using ChatGPT4 to create Python bindings for a C library. I learned a lot in the process. I do have some experience with pybind11, however, this C library was challenging due to the use of pointers (especially the GPMF_stream struct). ChatGPT4 was able to solve all the hurdles in the process. I had to iterate some prompts and also prompt with specific errors, but in the end we figured it out ;)

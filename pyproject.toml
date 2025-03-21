@@ -5,8 +5,18 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-license-files = []
+[project]
+name = "py_gpmf_parser"
+version = "0.0.4"
+authors = [
+    {name = "Steffen Urban", email = "urbste@gmail.com"},
+]
+description = "Python bindings for the gpmf-parser library using pybind"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+urls = {Homepage = "https://github.com/urbste/py-gpmf-parser"}
+
 
 [tool.cibuildwheel]
 test-command = "python {project}/tests/test.py"
