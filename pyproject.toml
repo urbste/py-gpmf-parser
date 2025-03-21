@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools>=42",
+    "setuptools>=56",
     "pybind11>=2.10.0",
 ]
 build-backend = "setuptools.build_meta"
@@ -17,6 +17,8 @@ license = {file = "LICENSE"}
 requires-python = ">=3.8"
 urls = {Homepage = "https://github.com/urbste/py-gpmf-parser"}
 
+[tool.setuptools]
+license-files = ["LICENSE"]
 
 [tool.cibuildwheel]
 test-command = "python {project}/tests/test.py"
