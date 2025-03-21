@@ -49,4 +49,5 @@ setup(
     cmdclass={"build_ext": build_ext},
     zip_safe=False,
     python_requires=">=3.8",
+    license_files=["LICENSE"]
 )
