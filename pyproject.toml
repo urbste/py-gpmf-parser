@@ -15,7 +15,8 @@ description = "Python bindings for the gpmf-parser library using pybind"
 readme = "README.md"
 requires-python = ">=3.8"
 urls = {Homepage = "https://github.com/urbste/py-gpmf-parser"}
-license = Apache-2.0
+license = "Apache-2.0"
+
 [tool.cibuildwheel]
 test-command = "python {project}/tests/test.py"
 test-skip = "*universal2:arm64"
