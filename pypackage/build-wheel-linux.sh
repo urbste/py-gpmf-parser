@@ -25,7 +25,7 @@ echo "Python version: $PYTHONVER"
 
 export PATH=$PYBIN:$PATH
 
-${PYBIN}/pip install auditwheel pybind11 numpy setuptools wheel
+${PYBIN}/pip install --upgrade pip setuptools wheel auditwheel pybind11 numpy
 
 PLAT=manylinux_2_28_x86_64
 "${PYBIN}/python" setup.py bdist_wheel --plat-name=$PLAT

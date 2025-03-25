@@ -5,6 +5,9 @@ gpmf-parser/
 __pycache__/
 *.py[cod]
 *$py.class
+wheelhouse/
+dist/
+build/
 
 # C extensions
 *.so
