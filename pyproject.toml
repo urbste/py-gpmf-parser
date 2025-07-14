@@ -2,6 +2,7 @@
 requires = [
     "setuptools>=61.0",
     "pybind11>=2.10.0",
+    "wheel",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -9,16 +10,17 @@ build-backend = "setuptools.build_meta"
 name = "py_gpmf_parser"
 version = "0.0.4"
 authors = [
-    {name = "Steffen Urban", email = "urbste@gmail.com"},
+    { name = "Steffen Urban", email = "urbste@gmail.com" },
 ]
 description = "Python bindings for the gpmf-parser library using pybind"
 readme = "README.md"
 requires-python = ">=3.8"
-urls = {Homepage = "https://github.com/urbste/py-gpmf-parser"}
 license = { text = "Apache-2.0" }
+urls = { Homepage = "https://github.com/urbste/py-gpmf-parser" }
 
 [tool.setuptools]
-license-files = []
+packages = ["py_gpmf_parser"]
+license-files = ["LICENSE"]
 
 [tool.cibuildwheel]
 test-command = "python {project}/tests/test.py"
@@ -32,7 +34,6 @@ extend-select = [
   "RUF", # Ruff-specific
   "UP",  # pyupgrade
 ]
-extend-ignore = [
-  "E501",   # Line too long
-]
+extend-ignore = ["E501"]
 target-version = "py38"
+
