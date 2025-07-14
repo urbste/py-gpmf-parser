@@ -19,6 +19,7 @@ license = "Apache-2.0"
 license-files = ["LICENSE"]
 urls = { Homepage = "https://github.com/urbste/py-gpmf-parser" }
 dependencies = [
+    "numpy>=1.24.4",
     "pybind11>=3.0.0",
     "setuptools>=75.3.2",
 ]
