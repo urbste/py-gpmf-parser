@@ -6,25 +6,32 @@ import os
 
 class BuildExt(build_ext):
     def build_extensions(self):
-        # C flags (if any) and C++ flags
-        c_opts = []
-        cpp_opts = ["-std=c++17"]
-        link_opts = []
+        # Platform-specific flags
+        cpp_flags = ["-std=c++17"]
+        link_flags = []
         if sys.platform == "darwin":
-            cpp_opts += ["-mmacosx-version-min=11.0"]
-            link_opts += ["-stdlib=libc++", "-mmacosx-version-min=11.0"]
+            cpp_flags += ["-mmacosx-version-min=11.0"]
+            link_flags += ["-stdlib=libc++", "-mmacosx-version-min=11.0"]
+
+        # Patch the compiler to only add c++ flags to .cpp files
+        original_compile = self.compiler._compile
+
+        def custom_compile(obj, src, ext, cc_args, extra_postargs, pp_opts):
+            extra = list(extra_postargs) if extra_postargs else []
+            if src.endswith(".cpp"):
+                extra += cpp_flags
+            # Only apply link flags when linking, not compiling
+            original_compile(obj, src, ext, cc_args, extra, pp_opts)
+
+        self.compiler._compile = custom_compile
 
         for ext in self.extensions:
-            # Clear and re-add per source
-            ext.extra_compile_args = []
-            for source in ext.sources:
-                if source.endswith('.cpp'):
-                    ext.extra_compile_args += cpp_opts
-                else:
-                    ext.extra_compile_args += c_opts
-            ext.extra_link_args = link_opts
+            ext.extra_compile_args = []  # Let our patch handle it
+            ext.extra_link_args = link_flags
 
         super().build_extensions()
+        # Restore the original _compile method (good practice)
+        self.compiler._compile = original_compile
 
 ext_modules = [
     Extension(
@@ -41,7 +48,6 @@ ext_modules = [
             "gpmf-parser/demo",
         ],
         language="c++",
-        # extra_compile_args=[],  # Leave empty, will be set in BuildExt
     ),
 ]
 
