@@ -1,19 +1,30 @@
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 import pybind11
-import platform
 import sys
+import os
 
-extra_compile_args = ["-std=c++17"]
-extra_link_args = []
+class BuildExt(build_ext):
+    def build_extensions(self):
+        # C flags (if any) and C++ flags
+        c_opts = []
+        cpp_opts = ["-std=c++17"]
+        link_opts = []
+        if sys.platform == "darwin":
+            cpp_opts += ["-mmacosx-version-min=11.0"]
+            link_opts += ["-stdlib=libc++", "-mmacosx-version-min=11.0"]
 
-# Add macOS-specific flags only if on macOS
-if sys.platform == "darwin":
-    extra_compile_args += ["-mmacosx-version-min=11.0"]
-    extra_link_args += [
-        "-stdlib=libc++",
-        "-mmacosx-version-min=11.0",
-    ]
+        for ext in self.extensions:
+            # Clear and re-add per source
+            ext.extra_compile_args = []
+            for source in ext.sources:
+                if source.endswith('.cpp'):
+                    ext.extra_compile_args += cpp_opts
+                else:
+                    ext.extra_compile_args += c_opts
+            ext.extra_link_args = link_opts
+
+        super().build_extensions()
 
 ext_modules = [
     Extension(
@@ -30,12 +41,11 @@ ext_modules = [
             "gpmf-parser/demo",
         ],
         language="c++",
-        extra_compile_args=extra_compile_args,
-        extra_link_args=extra_link_args,
+        # extra_compile_args=[],  # Leave empty, will be set in BuildExt
     ),
 ]
 
 setup(
     ext_modules=ext_modules,
-    cmdclass={"build_ext": build_ext},
+    cmdclass={"build_ext": BuildExt},
 )
