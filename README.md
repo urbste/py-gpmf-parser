@@ -31,24 +31,25 @@ git clone --recursive https://github.com/moscamich/py-gpmf-parser.git
 cd py-gpmf-parser
 ```
 
-### 2. Install (pip)
-
-```bash
-python -m pip install .
-```
-
-Or for local development/build:
+### 2. Build locally
 
 ```bash
 python build.py build_ext --inplace
 ```
 
 **Note:**  
-This package uses a custom build script (`build.py`) to ensure platform-correct C++ flags.  
-You do **not** need to manually adjust compiler flags for Linux or macOS!
+Installing with pip install . will not build the C++ extension correctly with the current setup.
+For reliable installation, always use the build command above.
 
 ---
 
+## (Optional) Using uv
+If you use uv for environment and dependency management:
+
+```bash
+uv run build.py build_ext --inplace
+uv sync
+```
 ## Usage
 
 Extract a single telemetry stream:
