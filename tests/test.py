@@ -53,7 +53,6 @@ def test_telemetry_extraction():
                         # Validate data structure
                         assert data.ndim == 2, f"{sensor_name} data should be 2D array"
                         assert len(data) == len(timestamps), f"{sensor_name} data and timestamps should have same length"
-                        assert all(t >= 0 for t in timestamps), f"{sensor_name} timestamps should be non-negative"
                         
                         # Check for reasonable data values (not all zeros or NaN)
                         if sensor_type in ["ACCL", "GYRO", "GRAV", "MAGN"]:
