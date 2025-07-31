@@ -25,10 +25,10 @@ echo "Python version: $PYTHONVER"
 
 export PATH=$PYBIN:$PATH
 
-${PYBIN}/pip install --upgrade pip setuptools wheel auditwheel pybind11 numpy
+${PYBIN}/pip install --upgrade pip setuptools wheel auditwheel pybind11 numpy build
 
 PLAT=manylinux_2_28_x86_64
-"${PYBIN}/python" setup.py bdist_wheel --plat-name=$PLAT
+"${PYBIN}/python" -m build --wheel
 
 cp /io/dist/*.whl /io/wheelhouse
 rm -rf /io/dist

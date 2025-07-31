@@ -1,52 +1,56 @@
-# Available at setup time due to pyproject.toml
-from pybind11.setup_helpers import Pybind11Extension, build_ext
-from setuptools import setup, find_packages
+from setuptools import setup, Extension
+from setuptools.command.build_ext import build_ext
 import pybind11
+import sys
 
-__version__ = "0.0.4"
+class BuildExt(build_ext):
+    def build_extensions(self):
+        # Platform-specific flags
+        cpp_flags = ["-std=c++17"]
+        link_flags = []
+        if sys.platform == "darwin":
+            cpp_flags += ["-mmacosx-version-min=11.0"]
+            link_flags += ["-stdlib=libc++", "-mmacosx-version-min=11.0"]
 
-# The main interface is through Pybind11Extension.
-# * You can add cxx_std=11/14/17, and then build_ext can be removed.
-# * You can set include_pybind11=false to add the include directory yourself,
-#   say from a submodule.
-#
-# Note:
-#   Sort input source files if you glob sources to ensure bit-for-bit
-#   reproducible builds (https://github.com/pybind/python_example/pull/53)
+        # Patch the compiler to only add c++ flags to .cpp files
+        original_compile = self.compiler._compile
+
+        def custom_compile(obj, src, ext, cc_args, extra_postargs, pp_opts):
+            extra = list(extra_postargs) if extra_postargs else []
+            if src.endswith(".cpp"):
+                extra += cpp_flags
+            # Only apply link flags when linking, not compiling
+            original_compile(obj, src, ext, cc_args, extra, pp_opts)
+
+        self.compiler._compile = custom_compile
+
+        for ext in self.extensions:
+            ext.extra_compile_args = []  # Let our patch handle it
+            ext.extra_link_args = link_flags
+
+        super().build_extensions()
+        # Restore the original _compile method (good practice)
+        self.compiler._compile = original_compile
 
 ext_modules = [
-    Pybind11Extension(
+    Extension(
         "gpmf_parser",
-        ['src/gpmf_bindings.cpp',
-         'gpmf-parser/GPMF_parser.c',
-         'gpmf-parser/GPMF_utils.c',
-         'gpmf-parser/demo/GPMF_mp4reader.c'],
+        sources=[
+            "src/gpmf_bindings.cpp",
+            "gpmf-parser/GPMF_parser.c",
+            "gpmf-parser/GPMF_utils.c",
+            "gpmf-parser/demo/GPMF_mp4reader.c",
+        ],
         include_dirs=[
             pybind11.get_include(),
-            'gpmf-parser',
-            'gpmf-parser/demo/',
+            "gpmf-parser",
+            "gpmf-parser/demo",
         ],
-        extra_compile_args=["-std=c++17"],  # only C++ flags
-        # Example: passing in the version to the compiled code
-        define_macros = [('VERSION_INFO', __version__)],
-        ),
+        language="c++",
+    ),
 ]
 
 setup(
-    name="py_gpmf_parser",
-    version=__version__,
-    author="Steffen Urban",
-    author_email="urbste@gmail.com",
-    url="https://github.com/urbste/py-gpmf-parser",
-    description="Python bindings for the gpmf-parser library using pybind",
-    long_description="",
     ext_modules=ext_modules,
-    packages=find_packages(),
-    package_data={"py_gpmf_parser": ["*"]},  # Include all files in py_gpmf_parser
-    extras_require={"test": "pytest"},
-    # Currently, build_ext only provides an optional "highest supported C++
-    # level" feature, but in the future it may provide more features.
-    cmdclass={"build_ext": build_ext},
-    zip_safe=False,
-    python_requires=">=3.8"
+    cmdclass={"build_ext": BuildExt},
 )
