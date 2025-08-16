@@ -50,7 +50,7 @@ std::vector<uint32_t> GetPayloadWrapper(
     if (payload)
     {
         // Assuming the payload has a fixed size or you have a way to determine its size.
-        return std::vector<uint32_t>(payload, payload + payloadsize);
+        return std::vector<uint32_t>(payload, payload + (payloadsize/sizeof(uint32_t)));
     }
     return std::vector<uint32_t>();
 }
